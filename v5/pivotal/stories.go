@@ -1,3 +1,4 @@
+// nolint
 package pivotal
 
 import (
@@ -129,7 +130,22 @@ type Comment struct {
 	UpdatedAt           *time.Time `json:"updated_at,omitempty"`
 }
 
-// StoryService is ..
+type Blocker struct {
+	Id          int        `json:"id,omitempty"`
+	StoryId     int        `json:"story_id,omitempty"`
+	PersonId    int        `json:"person_id,omitempty"`
+	Description string     `json:"description,omitempty"`
+	Resolved    bool       `json:"resolved,omitempty"`
+	CreatedAt   *time.Time `json:"created_at,omitempty"`
+	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
+}
+
+type BlockerRequest struct {
+	Description string `json:"description,omitempty"`
+	Resolved    *bool  `json:"resolved,omitempty"`
+}
+
+// StoryService ...
 type StoryService struct {
 	client *Client
 }
@@ -358,4 +374,61 @@ func (service *StoryService) ListComments(
 	}
 
 	return comments, resp, nil
+}
+
+// ListBlockers returns the list of Blockers in a Story.
+func (service *StoryService) ListBlockers(
+	projectId int,
+	storyId int,
+) ([]*Blocker, *http.Response, error) {
+
+	u := fmt.Sprintf("projects/%v/stories/%v/blockers", projectId, storyId)
+	req, err := service.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var blockers []*Blocker
+	resp, err := service.client.Do(req, &blockers)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return blockers, resp, nil
+}
+
+// AddBlocker ...
+func (service *StoryService) AddBlocker(projectId int, storyId int, description string) (*Blocker, *http.Response, error) {
+	u := fmt.Sprintf("projects/%v/stories/%v/blockers", projectId, storyId)
+	req, err := service.client.NewRequest("POST", u, BlockerRequest{
+		Description: description,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var blocker Blocker
+	resp, err := service.client.Do(req, &blocker)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return &blocker, resp, nil
+}
+
+// UpdateBlocker ...
+func (service *StoryService) UpdateBlocker(projectId, stroyId, blockerId int, blocker *BlockerRequest) (*Blocker, *http.Response, error) {
+	u := fmt.Sprintf("projects/%v/stories/%v/blockers/%v", projectId, stroyId, blockerId)
+	req, err := service.client.NewRequest("PUT", u, blocker)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var blockerResp Blocker
+	resp, err := service.client.Do(req, &blockerResp)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return &blockerResp, resp, nil
 }
