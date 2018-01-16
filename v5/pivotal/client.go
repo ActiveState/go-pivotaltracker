@@ -41,6 +41,9 @@ type Client struct {
 
 	// Story service
 	Stories *StoryService
+	
+	// Activity Service
+	Activity *ActivityService
 }
 
 // NewClient gets you a new client
@@ -55,6 +58,7 @@ func NewClient(apiToken string) *Client {
 	client.Me = newMeService(client)
 	client.Projects = newProjectService(client)
 	client.Stories = newStoryService(client)
+	client.Activity = newActivitiesService(client)
 	return client
 }
 
