@@ -9,10 +9,10 @@ import (
 	"time"
 )
 
-// Changes is ...
-type Changes struct {
+// Change is ...
+type Change struct {
 	Kind           string      `json:"kind,omitempty"`
-	GUID           string      `json:"id,omitempty"`
+	ID             int         `json:"id,omitempty"`
 	Name           string      `json:"name,omitempty"`
 	ChangeType     string      `json:"change_type,omitempty"`
 	StoryType      string      `json:"story_type,omitempty"`
@@ -28,7 +28,7 @@ type Activity struct {
 	ProjectVersion     int           `json:"project_version,omitempty"`
 	Message            string        `json:"message,omitempty"`
 	Highlight          string        `json:"highlight,omitempty"`
-	Changes            []Changes     `json:"changes,omitempty"`
+	Changes            []Change      `json:"changes,omitempty"`
 	PrimaryResources   []interface{} `json:"primary_resources,omitempty"`
 	SecondaryResources []interface{} `json:"secondary_resources,omitempty"`
 	Project            Project       `json:"project,omitempty"`
