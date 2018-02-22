@@ -36,8 +36,6 @@ type Activity struct {
 	OccurredAt         time.Time     `json:"occurred_at,omitempty"`
 }
 
-var validSortOrder map[string]struct{}
-
 // ActivityService is ...
 type ActivityService struct {
 	client *Client
@@ -68,6 +66,8 @@ func (service *ActivityService) List(projectID int, sortOrder *string, limit *in
 	return activities, nil
 }
 
+// newActivitiesRequestFunc takes in pointers to a bunch of types, there reason for this is so we can pass in nil values and create a query string accordingly
+// this could be wrapped a different way to accomplish a similar goal but the nil value is the desired behavior
 func newActivitiesRequestFunc(client *Client, projectID int, sortOrder *string, limit *int, offset *int, occurredBefore *time.Time, occurredAfter *time.Time, sinceVersion *int) func() *http.Request {
 	return func() *http.Request {
 		u := fmt.Sprintf("projects/%v/activity", projectID)
