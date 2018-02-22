@@ -51,8 +51,11 @@ func newActivitiesService(client *Client) *ActivityService {
 // another to retrieve the activities using the right pagination setup. The reason
 // for this is that the filter might require to fetch all the activities at once
 // to get the right results. The response is default sorted in DESCENDING order so
-// leverage the sortAsc variable to control sort order.
+// leverage the sortOrder variable to control sort order.
 func (service *ActivityService) List(projectID int, sortOrder *string, limit *int, offset *int, occurredBefore *time.Time, occurredAfter *time.Time, sinceVersion *int) ([]*Activity, error) {
+	if err := validateSortOrder(sortOrder); err != nil {
+		return nil, err
+	}
 	reqFunc := newActivitiesRequestFunc(service.client, projectID, sortOrder, limit, offset, occurredBefore, occurredAfter, sinceVersion)
 	cursor, err := newCursor(service.client, reqFunc, 0)
 	if err != nil {
@@ -126,8 +129,11 @@ func (c *ActivityCursor) Next() (s *Activity, err error) {
 
 // Iterate returns a cursor that can be used to iterate over the activities specified
 // by the filter. More stories are fetched on demand as needed.
-func (service *ActivityService) Iterate(projectID int, sortOrder *string, limit *int, offset *int, occurredBefore *time.Time, occurredAfter *time.Time, sinceVersion *int) (c *ActivityCursor, err error) {
-	reqFunc := newActivitiesRequestFunc(service.client, projectID, sortOrder, limit, offset, occurredBefore, occurredAfter, sinceVersion)
+func (service *ActivityService) Iterate(projectID int, sortOrder *string, occurredBefore *time.Time, occurredAfter *time.Time, sinceVersion *int) (c *ActivityCursor, err error) {
+	if err = validateSortOrder(sortOrder); err != nil {
+		return nil, err
+	}
+	reqFunc := newActivitiesRequestFunc(service.client, projectID, sortOrder, nil, nil, occurredBefore, occurredAfter, sinceVersion)
 	cursor, err := newCursor(service.client, reqFunc, PageLimit)
 	if err != nil {
 		return nil, err
@@ -135,12 +141,16 @@ func (service *ActivityService) Iterate(projectID int, sortOrder *string, limit 
 	return &ActivityCursor{cursor, make([]*Activity, 0)}, nil
 }
 
-func (service *ActivityService) validateSortOrder(order string) error {
+// helper function to ensure we use a valid sort order
+func validateSortOrder(order *string) error {
+	if order == nil {
+		return nil
+	}
 	validValues := []string{"asc", "desc"}
 	for _, value := range validValues {
-		if value == order {
+		if value == *order {
 			return nil
 		}
 	}
-	return fmt.Errorf("%s is not a valid sort_order", order)
+	return fmt.Errorf("%s is not a valid sort_order", *order)
 }
