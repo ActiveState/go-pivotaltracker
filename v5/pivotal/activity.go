@@ -73,22 +73,22 @@ func newActivitiesRequestFunc(client *Client, projectID int, sortOrder *string, 
 		activityPath := fmt.Sprintf("projects/%v/activity", projectID)
 		queryParams := url.Values{}
 		if sortOrder != nil {
-			queryParams.Add("sort_order", url.QueryEscape(*sortOrder))
+			queryParams.Add("sort_order", *sortOrder)
 		}
 		if limit != nil {
-			queryParams.Add("limit", url.QueryEscape(strconv.Itoa(*limit)))
+			queryParams.Add("limit", strconv.Itoa(*limit))
 		}
 		if offset != nil {
-			queryParams.Add("offset", url.QueryEscape(strconv.Itoa(*offset)))
+			queryParams.Add("offset", strconv.Itoa(*offset))
 		}
 		if occurredBefore != nil {
-			queryParams.Add("occurred_before", url.QueryEscape(occurredBefore.String()))
+			queryParams.Add("occurred_before", occurredBefore.Format(time.RFC3339))
 		}
 		if occurredAfter != nil {
-			queryParams.Add("occurred_after", url.QueryEscape(occurredAfter.String()))
+			queryParams.Add("occurred_after", occurredAfter.Format(time.RFC3339))
 		}
 		if sinceVersion != nil {
-			queryParams.Add("since_version", url.QueryEscape(strconv.Itoa(*sinceVersion)))
+			queryParams.Add("since_version", strconv.Itoa(*sinceVersion))
 		}
 		if len(queryParams) > 0 {
 			activityPath += "?"
